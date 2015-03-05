@@ -3,72 +3,26 @@
 <head>
 <title>Screen 1</title>
 <style type="text/css">
-body, html {
-      width: 100%;
-      height: 100%;
-}
-* {
-      margin: 0px;
-      padding: 0px;
-      border-width: 0px;
-}
-body > table {
-      width: 100%;
-      height: 100%;
-      border-width: 0;
-}
 #rightTd {
       width: 550px;
 }
-#leftCol, #rightCol {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-}
 
-#leftCol > *, #rightCol > * {
-      flex: 1
-}
 
-#header {
-      flex: 0 0 auto;
-      font-size: 1.8em;
-      font-family: "arial", "helvetica", sans-serif;
-      font-weight: bold;
-      color: white;
-      background-color: black
-}
-#inSemester {
-      background-color: rgb(255,153,0);
-      color: black;
-      padding-left: 0.25em;
-      padding-right: 0.5em;
-      margin-right: 0.25em;
-      display: block;
-      float: left;
-      height: 100%;
-      margin-top: -0.5em;
-      margin-bottom: -0.5em;
-}
-#header, #inSemester {
-      padding-top: 0.5em;
-      padding-bottom: 0.5em;
-}
-
-#labAssistant {
-
-}
 #labMap {
       display: block;
       width: 100%;
       flex: 0 0 auto;
 }
 #ruleIcons {
-      flex: 0 0 auto;
+      flex: 0 0 auto !important;
+	  flex-direction: row;
+	  display: flex;
+	  height: 150px;
+	  justify-content: space-between;
 }
 #ruleIcons > img {
-      width: 50%;
+	width: 100%;
+	
 }
 
 #footer {
@@ -84,16 +38,21 @@ iframe {
 
 
 </style>
+<link type="text/css" rel="stylesheet" href="screen.css" />
 </head>
 <body>
 <table>
 <tr id="splitRow">
       <td id="leftTd">
             <div id="leftCol">
-                  <div id="header">
-                  <span id="inSemester">In Semester:</span>
-                  Mon &mdash; Fri 8:00am till 6:30pm
-                  </div>
+                  <table id="openingHours">
+					<col id="timeName"><col id="timeHours">
+					<tr>
+						<td>In Semester:</td><td>Mon&mdash;Fri 8:00am&mdash;6:30pm</td>
+					</tr><tr>
+						<td>After Hours:</td><td>6:30pm&mdash;2:00am</td>
+					</tr>
+					</table>
                   <iframe id="labAssistant" src="http://eng.monash.edu/non-cms/ecms/la/display.php" seamless frameborder="0" scrolling="no"></iframe>
                   <img id="labMap" src="direction.jpg" />
             </div>
