@@ -7,12 +7,12 @@
       width: 550px;
 }
 
-
 #labMap {
       display: block;
       width: 100%;
       flex: 0 0 auto;
 }
+
 #ruleIcons {
       flex: 0 0 auto !important;
 	  flex-direction: row;
@@ -38,10 +38,63 @@ iframe {
 
 
 </style>
+
+<script type="text/javascript">
+    
+    function loadLabAssistant() {
+    
+        var lARequest = new XMLHttpRequest();
+        lARequest.open('GET', 'http://eng.monash.edu/non-cms/ecms/la/display.php?json');
+        lARequest.overrideMimeType('application/json');
+        lARequest.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                var responseJSON = JSON.parse(this.responseText);
+                updateLabAssistantDOM(responseJSON);
+            }
+        }
+        lARequest.send();
+    }
+    
+    function updateLabAssistantDOM(responseJSON) {
+        var lAContents;
+        if (responseJSON.loggedIn) {
+            lAContents = document.getElementById('labAssistantPresent').contents;
+            
+            var nameElem = lAContents.getElementById('labAssistantName');
+            var photoElem = lAContents.getElementById('labAssistantPhoto');
+            
+            nameElem.innerText = responseJSON.name
+            photoElem.src = 'http://eng.monash.edu/non-cms/ecms/la/'+responseJSON.photoURI;
+        } else {
+            lAContents = document.getElementById('labAssistantAway');
+        }
+        
+        var lAElem = document.getElementById('labAssistant');
+            while (laElem.firstChild) {laElem.removeChild(laElem.firstChild);}
+        lAElem.appendChild(document.importNode(lAContents, true));
+    }
+    
+    window.onload = loadLabAssistant;
+
+</script>
+
+
+
+
 <link type="text/css" rel="stylesheet" href="screen.css" />
-<meta http-equiv="refresh" content="2" />
+<meta http-equiv="refresh" content="60" />
 </head>
 <body>
+<template id="labAssistantPresent">
+    <h1 id="labAssistantHeader">Lab Assistant on Duty:</h1>
+    <img id="labAssistantPhoto" />
+    <span id="labAssistantName"></span>
+</template>
+
+<template id="labAssistantAway">
+    <h1 id="labAssistantHeader">Lab Desk Unattended</h1>
+    <span id="labAssistantAwayText">The lab desk is staffed from 9am&mdash;5pm in teaching periods. Outside of this time, contact eng-it-support@monash.edu for IT issues, call Monash Security on (03)-(990)-53038 for safety issues, or call 333 from a Monash phone in an emergency.</span>
+</template>
 <table>
 <tr id="splitRow">
       <td id="leftTd">
@@ -54,7 +107,9 @@ iframe {
 						<td>After Hours:</td><td>6:30pm&mdash;2:00am</td>
 					</tr>
 					</table>
-                  <iframe id="labAssistant" src="http://eng.monash.edu/non-cms/ecms/la/display.php" seamless frameborder="0" scrolling="no"></iframe>
+                    <div id="labAssistant"></div>
+                    
+                  <!--<iframe id="labAssistant" src="http://eng.monash.edu/non-cms/ecms/la/display.php?json" seamless frameborder="0" scrolling="no"></iframe>-->
                   <img id="labMap" src="direction.jpg" />
             </div>
       </td>
