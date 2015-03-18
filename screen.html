@@ -10,7 +10,7 @@
 #labMap {
       display: block;
       width: 100%;
-      flex: 0 0 auto;
+      flex: 0 0 auto !important;
 }
 
 #ruleIcons {
@@ -36,6 +36,48 @@ iframe {
       overflow: hidden;
 }
 
+#labAssistant {
+	display: flex;
+	flex-direction: column;
+}
+#labAssistantHeader, #labAssistantName {
+	text-align: center;
+	padding: 0.4em;
+}
+#labAssistantPhotoContainer {
+	flex: 1 0 0px;
+	/*background-size: contain;
+	background-repeat: no-repeat;
+	background-position: 50%;*/
+	border-radius: 5px;
+	position: relative;
+	text-align: center;
+}
+#labAssistantPhoto {
+	max-height: 100%;
+	max-width: 100%;
+	display: inline-block;
+	margin: 0 auto;
+	position: absolute;
+	left: 50%;
+	border-radius: 2px;
+	box-shadow: 0px 1px 2px 1px rgba(0,0,0,0.8);
+	transform: translate(-50%, 0%);
+}
+#labAssistantPhoto:before {
+	content: '';
+	display: inline-block;
+}
+#labAssistantHeader {
+	font-size: 1.4em;
+	font-weight: normal;
+}
+#labAssistantName {
+	font-size: 1.5em;
+	font-weight: bold;
+}
+
+
 
 </style>
 
@@ -58,7 +100,7 @@ iframe {
     function updateLabAssistantDOM(responseJSON) {
         var lAContents;
         if (responseJSON.loggedIn) {
-            lAContents = document.getElementById('labAssistantPresent').contents;
+            lAContents = document.getElementById('labAssistantPresent').content;
             
             var nameElem = lAContents.getElementById('labAssistantName');
             var photoElem = lAContents.getElementById('labAssistantPhoto');
@@ -70,11 +112,11 @@ iframe {
         }
         
         var lAElem = document.getElementById('labAssistant');
-            while (laElem.firstChild) {laElem.removeChild(laElem.firstChild);}
+            while (lAElem.firstChild) {lAElem.removeChild(lAElem.firstChild);}
         lAElem.appendChild(document.importNode(lAContents, true));
     }
     
-    window.onload = loadLabAssistant;
+    document.addEventListener("DOMContentLoaded", loadLabAssistant, false);
 
 </script>
 
@@ -87,8 +129,8 @@ iframe {
 <body>
 <template id="labAssistantPresent">
     <h1 id="labAssistantHeader">Lab Assistant on Duty:</h1>
-    <img id="labAssistantPhoto" />
-    <span id="labAssistantName"></span>
+    <div id="labAssistantPhotoContainer"><img id="labAssistantPhoto" /></div>
+    <div id="labAssistantName"></div>
 </template>
 
 <template id="labAssistantAway">
@@ -104,7 +146,7 @@ iframe {
 					<tr>
 						<td>In Semester:</td><td>Mon&mdash;Fri 8:00am&mdash;6:30pm</td>
 					</tr><tr>
-						<td>After Hours:</td><td>6:30pm&mdash;2:00am</td>
+						<td>After Hours:</td><td>6:30pm&mdash;Midnight</td>
 					</tr>
 					</table>
                     <div id="labAssistant"></div>
