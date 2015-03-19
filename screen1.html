@@ -60,10 +60,95 @@ iframe {
 
 
 </style>
+
+<script type="text/javascript">
+'use strict';
+String.prototype.toProperCase = function () {
+    return this.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+};
+
+function retrieveActivities() {
+      var activityRequest = new XMLHttpRequest();
+      activityRequest.open('GET', 'http://localhost:8080/?json');
+      activityRequest.onreadystatechange = function() {
+            if (this.status == 200 && this.readyState == 4) {
+                  try {
+                        console.log('got activites!');
+                        parseActivities(JSON.parse(this.response));
+                  } catch (e) {
+                        if (e.name == 'SyntaxError') {
+                              console.log('JSON parse error: '+e);
+                        } else {
+                              throw(e);
+                        }
+                  }
+            }
+      }
+      activityRequest.send();
+}
+
+function parseActivities(activitiesJSON) {
+      for (var room in activitiesJSON) {
+            var roomActivities = activitiesJSON[room];
+            var roomFragment = document.importNode(document.querySelector('#roomTemplate').content, true);
+            var roomNameSpan = roomFragment.querySelector('.roomName');
+            roomNameSpan.innerText = room;
+            var activitiesUl = roomFragment.querySelector('.activities');
+            for (var when in roomActivities) {
+                  if (roomActivities[when]) {
+                        activitiesUl.appendChild(activityToFragment(when, roomActivities[when]));
+                        if (when == 'prev') {
+                              roomNameSpan.className += ' roomWithPrev';
+                        }
+                  } else if (when != 'prev') {
+                        activitiesUl.appendChild(activityToFragment(when, roomActivities[when]));
+                  }
+            }
+            document.getElementById('roomList').appendChild(roomFragment);
+      }
+}
+
+function activityToFragment(when, activityJSON) {
+      var activityFragment;
+      if (activityJSON) {
+            activityFragment = document.importNode(document.querySelector('#activityTemplate').content, true);
+            activityFragment.querySelector('.activityName').innerText = activityJSON.name;
+            activityFragment.querySelector('.activityType').innerText = activityJSON.type;
+            activityFragment.querySelector('.activityTime').innerText = activityJSON.time;
+      } else {
+            activityFragment = document.importNode(document.querySelector('#freeTemplate').content, true);
+      }
+      activityFragment.querySelector('.activityWhen').innerText = (when != 'now') ? when.toProperCase()+': ' : '';
+      return activityFragment;
+}
+
+document.addEventListener("DOMContentLoaded", retrieveActivities, false);
+
+</script>
 <link rel="stylesheet" type="text/css" href="screen.css" />
 <meta http-equiv="refresh" content="60" />
 </head>
 <body>
+<template id="freeTemplate">
+<li class="activity">
+      <span class="activityWhen"></span>
+      Free!
+</li>
+</template>
+<template id="activityTemplate">
+<li class="activity">
+      <span class="activityWhen"></span> 
+      <span class="activityName"></span>
+      <span class="activityType"></span>:
+      <span class="activityTime"></span>
+</li>
+</template>
+<template id="roomTemplate">
+<li class="roomActivities">
+      <span class="roomName"></span>
+      <ul class="activities"></ul>
+</li>
+</template>
 <table>
 <tr id="splitRow">
       <td id="leftTd">
@@ -73,10 +158,13 @@ iframe {
 					<tr>
 						<td>In Semester:</td><td>Mon&mdash;Fri 8:00am&mdash;6:30pm</td>
 					</tr><tr>
-						<td>After Hours:</td><td>6:30pm&mdash;2:00am</td>
+						<td>After Hours:</td><td>6:30pm&mdash;Midnight</td>
 					</tr>
 					</table>
-                  <iframe id="labAssistant" src="http://118.138.153.0/tt" seamless frameborder="0" scrolling="no"></iframe>
+                  <div id="currentActivites">
+                        <ul id="roomList">
+                        </ul>
+                  </div>
             </div>
       </td>
       <td id="rightTd">
