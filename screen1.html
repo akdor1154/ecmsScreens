@@ -126,7 +126,11 @@ iframe {
       }
 }
 
-
+#timecheck {
+      color: rgb(.5,.5,.5);
+      text-align: center;
+      flex: 0 0 2em !important;
+}
 
 
 </style>
@@ -188,6 +192,7 @@ function parseActivities(activitiesJSON) {
             } else {
                   document.getElementById('roomList').appendChild(roomLi);
             }
+            document.getElementById('timecheck').textContent = 'Last updated: '+(new Date(Date.now())).toString();
       }
 }
 
@@ -262,6 +267,7 @@ document.addEventListener("DOMContentLoaded", scheduleActivities, false);
                         <ul id="roomList">
                         </ul>
                   </div>
+                  <div id="timecheck"></div>
             </div>
       </td>
       <td id="rightTd">
