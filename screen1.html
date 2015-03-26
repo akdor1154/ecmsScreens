@@ -141,7 +141,7 @@ String.prototype.toProperCase = function () {
 
 function retrieveActivities() {
       var activityRequest = new XMLHttpRequest();
-      activityRequest.open('GET', 'http://localhost:8080/?json');
+      activityRequest.open('GET', 'http://118.138.153.0/tt?json');
       activityRequest.onreadystatechange = function() {
             if (this.status == 200 && this.readyState == 4) {
                   try {
@@ -230,7 +230,6 @@ document.addEventListener("DOMContentLoaded", scheduleActivities, false);
 
 </script>
 <link rel="stylesheet" type="text/css" href="screen.css" />
-<meta http-equiv="refresh" content="60" />
 <meta http-equiv="content-type" content="text/html; charset=utf-8" />
 </head>
 <body>
@@ -271,11 +270,6 @@ document.addEventListener("DOMContentLoaded", scheduleActivities, false);
                         <img src="fooddrink.plain.svg" />
                         <img src="bicycles.plain.svg" />
             </div>
-      </td>
-</tr>
-<tr>
-      <td id="footer" colspan="2">
-      <iframe id="ticker" src="http://118.138.152.230/status/snmp1.php"></iframe>
       </td>
 </tr>
 </table>
