@@ -1,0 +1,22 @@
+
+
+<table id="openingHours" class="leftShadow">
+	<col id="timeName"><col id="timeHours">
+	<tr>
+		<td>In Semester:</td><td>Mon&mdash;Fri 8:00am&mdash;6:30pm</td>
+	</tr><tr>
+		<td>After Hours:</td><td>6:30pm&mdash;Midnight</td>
+	</tr>
+</table>
+
+<script type="text/javascript">
+
+var openingHours = document.currentScript.ownerDocument.getElementById('openingHours');
+
+var mainDocument = document;
+
+var openingHoursPlaceholder = mainDocument.getElementById('openingHours')
+
+openingHoursPlaceholder.parentNode.replaceChild(openingHours, openingHoursPlaceholder);
+
+</script>

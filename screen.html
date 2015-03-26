@@ -83,6 +83,8 @@ iframe {
 
 <script type="text/javascript">
     
+    var labAssistantCheckSeconds = 10;
+
     function loadLabAssistant() {
     
         var lARequest = new XMLHttpRequest();
@@ -116,7 +118,16 @@ iframe {
         lAElem.appendChild(document.importNode(lAContents, true));
     }
     
-    document.addEventListener("DOMContentLoaded", loadLabAssistant, false);
+    function scheduleLabAssistant() {
+      startInterval(loadLabAssistant, labAssistantCheckSeconds*1000);
+    }
+
+    function startInterval(fn, interval) {
+      fn();
+      return setInterval(fn, interval);
+    }
+
+    document.addEventListener("DOMContentLoaded", scheduleLabAssistant, false);
 
 </script>
 
@@ -141,14 +152,7 @@ iframe {
 <tr id="splitRow">
       <td id="leftTd">
             <div id="leftCol">
-                  <table id="openingHours">
-					<col id="timeName"><col id="timeHours">
-					<tr>
-						<td>In Semester:</td><td>Mon&mdash;Fri 8:00am&mdash;6:30pm</td>
-					</tr><tr>
-						<td>After Hours:</td><td>6:30pm&mdash;Midnight</td>
-					</tr>
-					</table>
+                  <div id="openingHours" class="placeholder"></div>
                     <div id="labAssistant"></div>
                     
                   <!--<iframe id="labAssistant" src="http://eng.monash.edu/non-cms/ecms/la/display.php?json" seamless frameborder="0" scrolling="no"></iframe>-->
@@ -169,6 +173,9 @@ iframe {
       </td>
 </tr>
 </table>
+
+
+<link rel="import" href="openingHours.html" />
 
 </body>
 </html>
