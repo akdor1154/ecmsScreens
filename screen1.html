@@ -58,32 +58,218 @@ iframe {
       overflow: hidden;
 }
 
+#currentActivites{
+      height: 100%;
+      position: relative;
+      font-size: 1.5em;
+      margin: 0.5rem 0rem;
+}
+#roomList {
+      display: flex;
+      flex-direction: column;
+      position: absolute;
+      height: 100%;
+      width: 100%;
+}
+.roomActivities {
+      display: flex;
+      flex: 1 1 3em;
+      margin: 0.2rem 0rem;
+      -webkit-animation: slideIn 200ms;
+}
+.roomName {
+      background-color: rgb(255,153,0);
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      padding-right: 0.4em;
+      font-weight: bold;
+      font-size: 3em;
+      width: 16rem;
+      box-sizing: border-box;
+}
+
+.activities {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 0.4em;
+}
+
+#roomList * {
+      list-style-type: none;
+}
+
+.activity {
+      color: white;
+}
+
+.activity.now {
+      font-weight: bold;
+}
+
+.activity.next,
+.activity.prev {
+      color: #888;
+}
+
+.roomActivities {
+      background-color: black;
+}
+
+@-webkit-keyframes slideIn {
+      from {
+            opacity: 0.8;
+      }
+      to {
+            opacity: 1;
+      }
+}
+
+
+
 
 </style>
+
+<script type="text/javascript">
+'use strict';
+
+var activitiesTimeSeconds = 20;
+String.prototype.toProperCase = function () {
+    return this.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+};
+
+function retrieveActivities() {
+      var activityRequest = new XMLHttpRequest();
+      activityRequest.open('GET', 'http://localhost:8080/?json');
+      activityRequest.onreadystatechange = function() {
+            if (this.status == 200 && this.readyState == 4) {
+                  try {
+                        console.log('got activites!');
+                        parseActivities(JSON.parse(this.response));
+                  } catch (e) {
+                        if (e.name == 'SyntaxError') {
+                              console.log('JSON parse error: '+e);
+                        } else {
+                              throw(e);
+                        }
+                  }
+            }
+      }
+      activityRequest.send();
+}
+
+function parseActivities(activitiesJSON) {
+      var roomsArray = Object.keys(activitiesJSON).sort();
+      for (var roomIndex in roomsArray) {
+            var room = roomsArray[roomIndex];
+            var roomActivities = activitiesJSON[room];
+            var roomFragment = document.importNode(document.querySelector('#roomTemplate').content, true);
+            var roomLi = roomFragment.querySelector('.roomActivities');
+            roomLi.id = room.toLowerCase();
+            var roomNameSpan = roomFragment.querySelector('.roomName');
+            roomNameSpan.textContent = room+':';
+            var activitiesUl = roomFragment.querySelector('.activities');
+            ['prev', 'now', 'next'].forEach(function(when) {
+                  if (roomActivities[when]) {
+                        activitiesUl.appendChild(activityToFragment(when, roomActivities[when]));
+                        if (when == 'prev') {
+                              roomNameSpan.className += ' roomWithPrev';
+                        }
+                  } else {
+                        activitiesUl.appendChild(activityToFragment(when, roomActivities[when]));
+                  }
+            });
+
+            var oldLi = document.getElementById(roomLi.id);
+            if (oldLi) {
+
+            document.getElementById('roomList').replaceChild(roomLi, oldLi);
+            } else {
+                  document.getElementById('roomList').appendChild(roomLi);
+            }
+      }
+}
+
+function activityToFragment(when, activityJSON) {
+      var activityFragment;
+      if (activityJSON) {
+            activityFragment = document.importNode(document.querySelector('#activityTemplate').content, true);
+            activityFragment.querySelector('.activityName').textContent = activityJSON.name;
+            activityFragment.querySelector('.activityType').textContent = activityJSON.type;
+            activityFragment.querySelector('.activityTime').textContent = timespanToString(timestampToDate(activityJSON.startTime), timestampToDate(activityJSON.endTime));
+      } else {
+            activityFragment = document.importNode(document.querySelector('#freeTemplate').content, true);
+      }
+      activityFragment.querySelector('.activity').className += ' '+when;
+      activityFragment.querySelector('.activityWhen').textContent = (when != 'now') ? when.toProperCase()+': ' : '';
+      return activityFragment;
+}
+
+function timespanToString(startTime, endTime) {
+      if (startTime === null || endTime === null) {
+            return '';
+      }
+      return friendlyTimeString(startTime)+'—'+friendlyTimeString(endTime);
+}
+
+function timestampToDate(timestamp) {
+      return new Date(timestamp*1000);
+}
+
+function friendlyTimeString(time) {
+      return time.getHours().toString()+':'+('00'+time.getMinutes().toString()).substr(-2,2);
+}
+
+function scheduleActivities() {
+      retrieveActivities();
+      setInterval(retrieveActivities, activitiesTimeSeconds*1000);
+}
+
+document.addEventListener("DOMContentLoaded", scheduleActivities, false);
+
+</script>
 <link rel="stylesheet" type="text/css" href="screen.css" />
 <meta http-equiv="refresh" content="60" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 </head>
 <body>
+<template id="freeTemplate">
+<li class="activity freeActivity">
+      <span class="activityWhen"></span>
+      Free!
+</li>
+</template>
+<template id="activityTemplate">
+<li class="activity">
+      <span class="activityWhen"></span> 
+      <span class="activityName"></span>
+      <span class="activityType"></span>:
+      <span class="activityTime"></span>
+</li>
+</template>
+<template id="roomTemplate">
+<li class="roomActivities leftShadow">
+      <span class="roomName"></span>
+      <ul class="activities"></ul>
+</li>
+</template>
 <table>
 <tr id="splitRow">
       <td id="leftTd">
             <div id="leftCol">
-                  <table id="openingHours">
-					<col id="timeName"><col id="timeHours">
-					<tr>
-						<td>In Semester:</td><td>Mon&mdash;Fri 8:00am&mdash;6:30pm</td>
-					</tr><tr>
-						<td>After Hours:</td><td>6:30pm&mdash;2:00am</td>
-					</tr>
-					</table>
-                  <iframe id="labAssistant" src="http://118.138.153.0/tt" seamless frameborder="0" scrolling="no"></iframe>
+                  <div id="openingHours" class="placeholder">Opening Hours Placeholder</div>
+                  <div id="currentActivites">
+                        <ul id="roomList">
+                        </ul>
+                  </div>
             </div>
       </td>
       <td id="rightTd">
             <div id="rightCol">
-                        <img src="surv.png" />
-                        <img src="fooddrink.png" />
-                        <img src="bicycles.png" />
+                        <img src="surv.plain.svg" />
+                        <img src="fooddrink.plain.svg" />
+                        <img src="bicycles.plain.svg" />
             </div>
       </td>
 </tr>
@@ -93,6 +279,8 @@ iframe {
       </td>
 </tr>
 </table>
+
+<link rel="import" href="openingHours.html" />
 
 </body>
 </html>
