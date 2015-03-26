@@ -75,6 +75,7 @@ iframe {
       display: flex;
       flex: 1 1 3em;
       margin: 0.2rem 0rem;
+      -webkit-animation: slideIn 200ms;
 }
 .roomName {
       background-color: rgb(255,153,0);
@@ -116,6 +117,14 @@ iframe {
       background-color: black;
 }
 
+@-webkit-keyframes slideIn {
+      from {
+            opacity: 0.8;
+      }
+      to {
+            opacity: 1;
+      }
+}
 
 
 
@@ -124,6 +133,8 @@ iframe {
 
 <script type="text/javascript">
 'use strict';
+
+var activitiesTimeSeconds = 20;
 String.prototype.toProperCase = function () {
     return this.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
 };
@@ -154,6 +165,8 @@ function parseActivities(activitiesJSON) {
             var room = roomsArray[roomIndex];
             var roomActivities = activitiesJSON[room];
             var roomFragment = document.importNode(document.querySelector('#roomTemplate').content, true);
+            var roomLi = roomFragment.querySelector('.roomActivities');
+            roomLi.id = room.toLowerCase();
             var roomNameSpan = roomFragment.querySelector('.roomName');
             roomNameSpan.textContent = room+':';
             var activitiesUl = roomFragment.querySelector('.activities');
@@ -168,7 +181,13 @@ function parseActivities(activitiesJSON) {
                   }
             });
 
-            document.getElementById('roomList').appendChild(roomFragment);
+            var oldLi = document.getElementById(roomLi.id);
+            if (oldLi) {
+
+            document.getElementById('roomList').replaceChild(roomLi, oldLi);
+            } else {
+                  document.getElementById('roomList').appendChild(roomLi);
+            }
       }
 }
 
@@ -202,7 +221,12 @@ function friendlyTimeString(time) {
       return time.getHours().toString()+':'+('00'+time.getMinutes().toString()).substr(-2,2);
 }
 
-document.addEventListener("DOMContentLoaded", retrieveActivities, false);
+function scheduleActivities() {
+      retrieveActivities();
+      setInterval(retrieveActivities, activitiesTimeSeconds*1000);
+}
+
+document.addEventListener("DOMContentLoaded", scheduleActivities, false);
 
 </script>
 <link rel="stylesheet" type="text/css" href="screen.css" />
